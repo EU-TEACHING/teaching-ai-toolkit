@@ -1,0 +1,4 @@
+[submodule "base"]
+	path = base
+	url = https://github.com/EU-TEACHING/teaching-base
+	branch = main
