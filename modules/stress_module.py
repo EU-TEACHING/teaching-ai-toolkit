@@ -1,6 +1,4 @@
 import os
-import json
-from ast import literal_eval as make_tuple
 
 import tensorflow as tf
 import tensorflow_addons as tfa
@@ -15,12 +13,13 @@ class StressModule(LearningModule):
     def __init__(self):
         super(StressModule, self).__init__()
         self._model_path = os.getenv('MODEL_PATH')
+        self._build()
     
     @TEACHINGNode(produce=True, consume=True)
     def __call__(self, input_fn):
 
         for msg in input_fn:
-            x = tf.tensor([msg.body['eda']])
+            x = tf.constant([[[msg.body['eda']]]])
             stress_value = self._model(x)
             yield DataPacket(
                 topic='prediction.stress.value', 
@@ -28,10 +27,10 @@ class StressModule(LearningModule):
                 body={'stress': tf.squeeze(stress_value).numpy()})
 
     def _build(self):
-        if self._file_path is not None:
+        if self._model_path is not None:
             self._model = tf.keras.models.load_model(self._model_path)
         else:
-            inputs = tf.keras.Input(shape=(int(os.environ['INPUT_SIZE']),))
+            inputs = tf.keras.Input(batch_shape=(1, 1, int(os.environ['INPUT_SIZE'])))
             for i in range(int(os.environ['LAYERS'])):
                 x = tfa.layers.ESN(
                     units=int(os.environ['UNITS']),
