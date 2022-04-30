@@ -1,4 +1,4 @@
-name: Build basic images
+name: Build ai-toolkit images
 
 on: [workflow_dispatch]
 
