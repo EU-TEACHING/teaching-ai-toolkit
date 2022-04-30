@@ -1,5 +1,5 @@
 ARG ARCH
-FROM chronis10/teaching-base:latest-${ARCH}
+FROM chronis10/teaching-base:${ARCH}
 ARG ARCH
 WORKDIR /app
 COPY /modules /app/modules
