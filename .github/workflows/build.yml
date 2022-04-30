@@ -32,7 +32,7 @@ jobs:
           push: true
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/teaching-ai-toolkit:latest-arm64
-          build-args: ARCH="arm64"
+          build-args: ARCH=arm64
       -
         name: Build and push AMD64
         uses: docker/build-push-action@v2
@@ -43,4 +43,4 @@ jobs:
           push: true
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/teaching-ai-toolkit:latest-amd64
-          build-args: ARCH="amd64"
+          build-args: ARCH=amd64
