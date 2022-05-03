@@ -10,6 +10,5 @@ RUN if [ "${ARCH}" = "amd64" ]; then \
     elif [ "${ARCH}" = "arm64" ]; then \
         python3 -m pip install tensorflow -f https://tf.kmtea.eu/whl/stable.html; \
     fi;
-RUN python3 -m pip install tensorflow-addons
 
 CMD ["python3", "main.py"]
