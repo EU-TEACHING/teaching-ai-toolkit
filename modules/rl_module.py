@@ -40,7 +40,7 @@ class RLModule(LearningModule):
 class Aggregator():
 
     def __init__(self):
-        self._namespaces = ["stress","excitement","ay","gz","speed","speed_limit"]
+        self._namespaces = ["stress", "excitement","ay","gz","speed","speed_limit"]
         self._batch_data = [None]*len(self._namespaces)
         
     def aggregate(self,msg):
