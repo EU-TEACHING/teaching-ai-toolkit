@@ -23,7 +23,7 @@ class StressModule(LearningModule):
             yield DataPacket(
                 topic='prediction.stress.value', 
                 timestamp=msg.timestamp,
-                body={'stress': tf.squeeze(stress_value).numpy()})
+                body={'stress': float(tf.squeeze(stress_value).numpy())})
 
     def _build(self):
         if self._model_path is not None:
