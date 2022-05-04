@@ -52,3 +52,7 @@ You can create as many methods as you like: just make sure they are called withi
 
 You can implement you own data-processing method withing the main Python class and call it before passing the data to another train/eval method. You may need to create a node entirely dedicated to pre-processing only if multiple (many) nodes in the computational graph need that preprocessed output.
 
+> My tests with docker-compose fail. What can I do?
+
+Make sure you have docker installed properly in your system using the latest stable version. If you are using Windows you can follow [this guide](https://docs.docker.com/desktop/windows/wsl/). If you still encounter some issues try to run a simple scenario like [scenario_1.yaml](https://github.com/EU-TEACHING/teaching-app/blob/main/scenarios/scenario_1.yaml) without modifying it. If this also fails it means the problem is mostly due to the installation of the TEACHING app dependencies (docker images, etc.) out of the scope of this repository.
+
