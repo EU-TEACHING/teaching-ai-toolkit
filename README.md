@@ -31,6 +31,8 @@ If you want to implement a new learning/eval module you can take the *StressModu
 
 ## Debug/Test Mode
 
+First of all you need to setup your environment. If you are using Windows, you can install [WSL2](https://docs.microsoft.com/en-us/windows/wsl/install) and [Docker Desktop](https://docs.docker.com/desktop/windows/install/). Then within Docker settings make sure to check the WSL integration tab and connect it to your virtual image. Once this is done you can run docker-compose directly within your WSL image (e.g. Ubuntu based). Alternatively, you can install and run everything from Windows powershell directly. 
+
 In order to debug your learning module we suggest to implement a `__main__` method within the learning module script and to momentarily disable the `@TEACHINGNode(produce=True, consume=True)` decorator (again, you can take the *StressModule* as a reference). This way you can see if the method is working as expected implementing a debug script (see for example [debug.py](debug.py)). Once you are happy with it, you can restore the decorator of the `__call__` method and implement a simple scenario to test if the node is working within the teaching platform (you can take a look a [scenario_1.yaml](https://github.com/EU-TEACHING/teaching-app/blob/main/scenarios/scenario_1.yaml) as a reference). 
 
 Once you have defined your **myscenario.yaml** you can run it simply by running the following lines of code:
