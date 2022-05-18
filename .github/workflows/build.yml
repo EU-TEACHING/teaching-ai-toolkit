@@ -28,7 +28,7 @@ jobs:
         
         with:
           env: TOKEN = ${{ secrets.ACTIONS_TOKEN }}
-          context: ${{ format('https://{0}@github.com/EU-TEACHING/teaching-ai-toolkit#main', TOKEN) }}
+          context: ${{ format('https://{0}@github.com/EU-TEACHING/teaching-ai-toolkit#main', $TOKEN) }}
           platforms: linux/arm64
           push: true
           tags: |
@@ -40,7 +40,7 @@ jobs:
         
         with:
           env: TOKEN = ${{ secrets.ACTIONS_TOKEN }}
-          context: ${{ format('https://{0}@github.com/EU-TEACHING/teaching-ai-toolkit#main', TOKEN) }}
+          context: ${{ format('https://{0}@github.com/EU-TEACHING/teaching-ai-toolkit#main', $TOKEN) }}
           platforms: linux/amd64
           push: true
           tags: |
