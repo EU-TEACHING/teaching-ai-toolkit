@@ -27,8 +27,7 @@ jobs:
         uses: docker/build-push-action@v2
         
         with:
-          context: |
-            https://${{ secrets.ACTIONS_TOKEN }}:@github.com/EU-TEACHING/teaching-ai-toolkit#main
+          context: .
           platforms: linux/arm64
           push: true
           tags: |
@@ -39,8 +38,7 @@ jobs:
         uses: docker/build-push-action@v2
         
         with:
-          context: |
-            https://${{ secrets.ACTIONS_TOKEN }}:@github.com/EU-TEACHING/teaching-ai-toolkit#main
+          context: .
           platforms: linux/amd64
           push: true
           tags: |
