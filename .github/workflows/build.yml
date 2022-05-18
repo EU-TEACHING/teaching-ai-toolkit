@@ -27,8 +27,7 @@ jobs:
         uses: docker/build-push-action@v2
         
         with:
-          env: TOKEN = ${{ secrets.ACTIONS_TOKEN }}
-          context: ${{ format('https://{0}@github.com/EU-TEACHING/teaching-ai-toolkit#main', $TOKEN) }}
+          context: ${{ format('https://{0}@github.com/EU-TEACHING/teaching-ai-toolkit#main', secrets.ACTIONS_TOKEN }}
           platforms: linux/arm64
           push: true
           tags: |
@@ -39,8 +38,7 @@ jobs:
         uses: docker/build-push-action@v2
         
         with:
-          env: TOKEN = ${{ secrets.ACTIONS_TOKEN }}
-          context: ${{ format('https://{0}@github.com/EU-TEACHING/teaching-ai-toolkit#main', $TOKEN) }}
+          context: ${{ format('https://{0}@github.com/EU-TEACHING/teaching-ai-toolkit#main', secrets.ACTIONS_TOKEN) }}
           platforms: linux/amd64
           push: true
           tags: |
