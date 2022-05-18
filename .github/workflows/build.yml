@@ -28,7 +28,7 @@ jobs:
         
         with:
           context: |
-            https://${{ secrets.ACTIONS_TOKEN }}@github.com/EU-TEACHING/teaching-ai-toolkit#main
+            ${{ secrets.ACTIONS_TOKEN }}@github.com/EU-TEACHING/teaching-ai-toolkit#main
           platforms: linux/arm64
           push: true
           tags: |
@@ -40,7 +40,7 @@ jobs:
         
         with:
           context: |
-            https://${{ secrets.ACTIONS_TOKEN }}@github.com/EU-TEACHING/teaching-ai-toolkit#main
+            ${{ secrets.ACTIONS_TOKEN }}@github.com/EU-TEACHING/teaching-ai-toolkit#main
           platforms: linux/amd64
           push: true
           tags: |
