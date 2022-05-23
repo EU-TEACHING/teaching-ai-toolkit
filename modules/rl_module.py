@@ -44,8 +44,8 @@ class Aggregator():
         self._batch_data = [None]*len(self._namespaces)
         
     def aggregate(self,msg):
-        if type(msg) == list:
-            msg = msg[0]
+        if type(msg.body) == list:
+            msg = msg.body[0]
         msg_keys = msg.body.keys()        
         for vkey in msg_keys:
             if vkey in self._namespaces:
