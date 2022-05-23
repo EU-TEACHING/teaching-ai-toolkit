@@ -45,7 +45,7 @@ class Aggregator():
         
     def aggregate(self,msg):
         if type(msg.body) == list:
-            msg = msg.body[0]
+            msg.body = msg.body[0]
         msg_keys = msg.body.keys()        
         for vkey in msg_keys:
             if vkey in self._namespaces:
