@@ -1,4 +1,5 @@
-import os 
+import os
+from typing import List 
 import tensorflow as tf
 from tensorflow import keras
 import numpy as np
@@ -18,12 +19,19 @@ class StressModule(LearningModule):
     def __call__(self, input_fn):
 
         for msg in input_fn:
-            x = tf.constant([[[msg.body['eda']]]])
-            stress_value = self._model(x)
+            if isinstance(msg.body, List):
+                stress = []
+                for body_t in msg.body:
+                    x = tf.constant([[[body_t['eda']]]])
+                    stress.append({'stress': float(tf.squeeze(self._model(x)).numpy())})
+            else:
+                x = tf.constant([[[msg.body['eda']]]])
+                stress = {'stress': float(tf.squeeze(self._model(x)).numpy())}
+
             yield DataPacket(
                 topic='prediction.stress.value', 
                 timestamp=msg.timestamp,
-                body={'stress': float(tf.squeeze(stress_value).numpy())})
+                body=stress)
 
     def _build(self):
         if self._model_path is not None:
