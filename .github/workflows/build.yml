@@ -9,6 +9,9 @@ jobs:
       -
         name: Checkout
         uses: actions/checkout@v2
+        with:
+          submodules: 'true'
+          token: ${{ secrets.ACTIONS_TOKEN }}
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v1
