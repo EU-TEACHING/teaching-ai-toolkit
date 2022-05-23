@@ -12,6 +12,7 @@ jobs:
         with:
           submodules: 'true'
           token: ${{ secrets.ACTIONS_TOKEN || github.token }}
+          persist-credentials: true
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v1
