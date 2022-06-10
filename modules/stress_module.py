@@ -34,7 +34,7 @@ class StressModule(LearningModule):
                 body=stress)
 
     def _build(self):
-        if self._model_path is not None:
+        if self._model_path is not None and os.path.exists(self._model_path):
             self._model = tf.keras.models.load_model(self._model_path)
         else:
             inputs = tf.keras.Input(batch_shape=(1, 1, int(os.environ['INPUT_SIZE'])))
@@ -52,6 +52,7 @@ class StressModule(LearningModule):
                 activation=('sigmoid' if int(os.environ['N_CLASSES']) <= 2 else 'softmax')
             )(x)
             self._model = tf.keras.Model(inputs=inputs, outputs=outputs, name="stress_model")
+            self._model.save(self._model_path)
 
         self._model.summary()
 
