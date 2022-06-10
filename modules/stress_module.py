@@ -1,4 +1,6 @@
 import os
+import time
+import threading
 from typing import List 
 import tensorflow as tf
 from tensorflow import keras
@@ -13,11 +15,12 @@ class StressModule(LearningModule):
     def __init__(self):
         super(StressModule, self).__init__()
         self._model_path = os.getenv('MODEL_PATH')
+        self._saver = None
         self._build()
     
     @TEACHINGNode(produce=True, consume=True)
     def __call__(self, input_fn):
-
+        
         for msg in input_fn:
             if isinstance(msg.body, List):
                 stress = []
@@ -52,10 +55,15 @@ class StressModule(LearningModule):
                 activation=('sigmoid' if int(os.environ['N_CLASSES']) <= 2 else 'softmax')
             )(x)
             self._model = tf.keras.Model(inputs=inputs, outputs=outputs, name="stress_model")
-        self._model.save(self._model_path)
 
         self._model.summary()
+        self._saver = threading.Thread(target=periodic_save_model, args=(self._model, self._model_path))
+        self._saver.start()
 
+def periodic_save_model(model, path):
+    while True:
+        model.save(path)
+        time.sleep(5)
 
 
 class ESN(keras.layers.RNN):
