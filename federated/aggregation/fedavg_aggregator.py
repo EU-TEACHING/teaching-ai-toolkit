@@ -101,13 +101,13 @@ class FedAvgAggregator(FederatedAggregator):
         # we will need to rework the management to avoid copying twice the files
         # we will need in the future to add more metadata, like timestamps
 
-        if len(self.local_store) < self.NUM_MSGS:
+        if len(self._local_store) < self.NUM_MSGS:
             # choose a filename in the local store, copy the received file message there
-            filename = f'{self.client_model_prefix}_{len(self.local_store)}.{self.client_model_ext}'
+            filename = f'{self.client_model_prefix}_{len(self._local_store)}.{self.client_model_ext}'
 
             # saving model binary content to the disk
             self.write_modelfile(filename, model)
-            self.local_store.append(filename)
+            self._local_store.append(filename)
 
             if self.model_common is None:
                 self.model_common=keras.models.load_model(filename)
@@ -118,14 +118,14 @@ class FedAvgAggregator(FederatedAggregator):
 
         else:
 
-            logging.info(f'Average to be computed on {len(self.local_store)} models')
+            logging.info(f'Average to be computed on {len(self._local_store)} models')
 
             # reference https://machinelearningmastery.com/polyak-neural-network-model-weight-ensemble/
             members = self.load_all_client_models(0, self.NUM_MSGS)
             averaged = self.model_weight_ensemble(members)
 
             #  we are not using the local store indeed, clear it for the side effect of resetting the file names
-            self.local_store.clear()
+            self._local_store.clear()
             #  return the averaged model to the caller when we produce one
             return averaged
 
