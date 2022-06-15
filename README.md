@@ -58,3 +58,7 @@ You can implement you own data-processing method withing the main Python class a
 
 Make sure you have docker installed properly in your system using the latest stable version. If you are using Windows you can follow [this guide](https://docs.docker.com/desktop/windows/wsl/). If you still encounter some issues try to run a simple scenario like [scenario_1.yaml](https://github.com/EU-TEACHING/teaching-app/blob/main/scenarios/scenario_1.yaml) without modifying it. If this also fails it means the problem is mostly due to the installation of the TEACHING app dependencies (docker images, etc.) out of the scope of this repository.
 
+> Protobuf raises an error from within the AI-Toolkit, what can I do?
+
+Try adding the following environment variable in your TEACHING app yaml file: `PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python`
+
