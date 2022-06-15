@@ -134,4 +134,4 @@ class FedAvgAggregator(FederatedAggregator):
             return None
         
         # Apply FedAvg
-        self.process_model(model)
+        return self.process_model(model)
