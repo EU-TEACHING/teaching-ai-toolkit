@@ -27,12 +27,6 @@ class FedAvgAggregator(FederatedAggregator):
         # hack for the second integration demo, it will contain the last seen Sender ID, used in asnwering back
         self.SenderId = "X"
 
-    def compile_teaching_model(self, model):
-        model.compile(
-            optimizer=tf.keras.optimizers.Adam(0.001),
-            loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-            metrics=[tf.keras.metrics.SparseCategoricalAccuracy()],
-        )
 
     # create a model from the weights of multiple models
     def model_weight_ensemble(self, members):
@@ -58,18 +52,7 @@ class FedAvgAggregator(FederatedAggregator):
         # set the weights in the new
         model.set_weights(avg_model_weights)
 
-        self.compile_teaching_model(model)
         return model
-
-
-    # you need to explicitly add a path prefix to the filename to manage a separate save directory
-    def write_modelfile(self, filename, data):
-        p = Path(filename)
-        p.write_bytes(data)
-
-
-    def read_modelfile(self, aggregate_filename):
-        return Path(aggregate_filename).read_bytes()
 
 
     # load in memory all models from files referenced in the local storage (local dir), return a list of models
@@ -101,22 +84,23 @@ class FedAvgAggregator(FederatedAggregator):
         # we will need to rework the management to avoid copying twice the files
         # we will need in the future to add more metadata, like timestamps
 
-        if len(self._local_store) < self.NUM_MSGS:
-            # choose a filename in the local store, copy the received file message there
-            filename = f'{self.client_model_prefix}_{len(self._local_store)}.{self.client_model_ext}'
 
-            # saving model binary content to the disk
-            self.write_modelfile(filename, model)
-            self._local_store.append(filename)
+        # choose a filename in the local store, copy the received file message there
+        filename = f'{self.client_model_prefix}_{len(self._local_store)}.{self.client_model_ext}'
 
-            if self.model_common is None:
-                self.model_common=keras.models.load_model(filename)
+        # saving model binary content to the disk
+        model.save(filename)
+        # self.write_modelfile(filename, model)
+        self._local_store.append(filename)
 
-            # do nothing: the model remains in the storage volume and will be evaluated later on
+        if self.model_common is None:
+            self.model_common=model
 
-            logging.info(f'Model received (possibly encrypted), length {len(model)}')
+        # do nothing: the model remains in the storage volume and will be evaluated later on
 
-        else:
+        logging.info(f'Model received (possibly encrypted), length {len(model)}')
+
+        if len(self._local_store) >= self.NUM_MSGS:
 
             logging.info(f'Average to be computed on {len(self._local_store)} models')
 
