@@ -10,12 +10,13 @@ from base.node import TEACHINGNode
 from base.communication.packet import DataPacket
 from .base_module import LearningModule
 
+
 class StressModule(LearningModule):
+
+    FED_TOPIC = 'stressmodule'
 
     def __init__(self):
         super(StressModule, self).__init__()
-        self._model_path = os.getenv('MODEL_PATH')
-        self._saver = None
         self._build()
     
     @TEACHINGNode(produce=True, consume=True)
@@ -36,7 +37,9 @@ class StressModule(LearningModule):
                 timestamp=msg.timestamp,
                 body=stress)
 
+
     def _build(self):
+        super(StressModule, self)._build()
         if self._model_path is not None and os.path.exists(self._model_path):
             self._model = tf.keras.models.load_model(self._model_path)
         else:
@@ -57,13 +60,6 @@ class StressModule(LearningModule):
             self._model = tf.keras.Model(inputs=inputs, outputs=outputs, name="stress_model")
 
         self._model.summary()
-        self._saver = threading.Thread(target=periodic_save_model, args=(self._model, self._model_path))
-        self._saver.start()
-
-def periodic_save_model(model, path):
-    while True:
-        model.save(path)
-        time.sleep(5)
 
 
 class ESN(keras.layers.RNN):

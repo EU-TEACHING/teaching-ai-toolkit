@@ -4,16 +4,17 @@ from typing import Iterable
 
 from base.communication.packet import DataPacket
 from .node.fednode import FederatedNode
+from .aggregation.aggregators import get_aggregator
 
 class FederatedServer:
 
     def __init__(self) -> None:
         self._aggregation_method = os.getenv('AGGREGATION', 'fedavg')
-        self._topic = os.getenv('TOPIC')
+        self._model_topic = f"federated.{os.getenv('MODEL_TOPIC')}.global_model"
         self._aggregator = None
     
 
-    @FederatedNode(produce=True, consume=True)
+    @FederatedNode
     def __call__(self, model_packet_queue: Iterable[DataPacket]) -> Iterable[DataPacket]:
         for m_pkt_ser in model_packet_queue:
             if m_pkt_ser is None:
@@ -37,5 +38,5 @@ class FederatedServer:
         return model_packet
     
     def _build(self) -> None:
-        pass
+        self._aggregator = get_aggregator(self._aggregation_method)
         

@@ -8,12 +8,12 @@ from base.communication.packet import DataPacket
 from .base_module import LearningModule
 
 
-
 class RLModule(LearningModule):
+
+    FED_TOPIC='rlmodule'
 
     def __init__(self):
         super(RLModule, self).__init__()
-        self._model_path = os.getenv('MODEL_PATH')
         self._build()
         self._aggregator = Aggregator()
         
