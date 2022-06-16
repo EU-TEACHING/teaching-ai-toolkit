@@ -1,7 +1,9 @@
 import os
+import threading
 
 import tensorflow as tf
 import numpy as np
+import time
 
 from base.node import TEACHINGNode
 from base.communication.packet import DataPacket
@@ -15,13 +17,12 @@ class RLModule(LearningModule):
     def __init__(self):
         super(RLModule, self).__init__()
         self._build()
+        self._periodic_sender = periodic_send_model(self)
         self._aggregator = Aggregator()
-        
+    
     @TEACHINGNode(produce=True, consume=True)
     def __call__(self, input_fn):
-        
         for msg in input_fn:
-            
             self._aggregator.aggregate(msg)
             if self._aggregator.is_ready():
                 profile = self._model.predict(np.asarray([self._aggregator._batch_data]))
@@ -35,6 +36,8 @@ class RLModule(LearningModule):
     def _build(self):
         self._model = tf.keras.models.load_model(self._model_path)
         self._model.summary()
+        super(RLModule, self)._build()
+        self._client.start()
 
 
 class Aggregator():
@@ -63,4 +66,14 @@ class Aggregator():
         self._batch_data = [None]*len(self._namespaces)
 
 
-
+def periodic_send_model(lm):
+    def aux_fn():
+        send_every_t = int(os.getenv('SEND_MODEL_INTERVAL', '5'))
+        while True:
+            time.sleep(send_every_t)
+            lm._train()
+            lm._client.send_model = {'model': tf.keras.models.clone_model(lm._model), 'metadata': {}}
+    
+    periodic_sender = threading.Thread(target=aux_fn)
+    periodic_sender.start()
+    return periodic_sender

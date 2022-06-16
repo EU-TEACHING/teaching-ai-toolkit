@@ -1,7 +1,4 @@
 import os
-import time
-import threading
-
 import numpy as np
 
 from federated.client import FederatedClient
@@ -15,7 +12,6 @@ class LearningModule(object):
         self._exec_mode = os.getenv('MODE')
         if self._exec_mode == 'FEDERATED':
             self._client = None
-            self._sender = None
         
         self._model = None
         self._phase = 'eval'
@@ -32,9 +28,6 @@ class LearningModule(object):
     def _build(self):
         if self._exec_mode == 'FEDERATED':
             self._client = FederatedClient(self)
-            self._client._build()
-            self._sender = periodic_sender(self)
-            self._sender.start()
     
     @property
     def phase(self):
@@ -50,22 +43,13 @@ class LearningModule(object):
         self._phase = new_phase
     
     @property
+    def federated(self):
+        return self._exec_mode == 'FEDERATED'
+    
+    @property
     def model(self):
         return self._model
     
     @model.setter
     def model(self, new_model):
         self._model = new_model
-
-
-def periodic_sender(lm):
-    def _periodic_model_update(lm):
-        send_every_t = int(os.getenv('SEND_MODEL_INTERVAL', '10'))
-        last_new_model_t = time.time()
-        while True:
-            if (time.time() - last_new_model_t) > send_every_t:
-                lm._train()
-                last_new_model_t = time.time()
-                lm._client.send_model({'model': lm.model, 'metadata': {}})
-    
-    return threading.Thread(target=_periodic_model_update, args=(lm, ))

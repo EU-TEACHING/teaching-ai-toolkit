@@ -1,54 +1,35 @@
-import pickle
-import queue
+import os
 import threading
-from typing import Dict, Iterable
+from typing import Iterable
 
 from .node.fednode import FederatedNode
 from base.communication.packet import DataPacket
 
 
-class FederatedClient:
+class FederatedClient(threading.Thread):
 
     def __init__(self, learning_module) -> None:
+        threading.Thread.__init__(self)
         self._lm = learning_module
         self._topic = f"federated.{self._lm.__class__.FED_TOPIC}"
 
         self._producer = None
         self._consumer = None
-        self._event_queue = queue()
+        self.send_model = None
     
-    def send_model(self, model_info: Dict):
-        self._event_queue.put(model_info)
-    
-    @FederatedNode(produce=False, consume=True)
-    def _consume(self, server_packet_queue: Iterable[DataPacket]) -> Iterable[DataPacket]:
-
+    @FederatedNode(produce=True, consume=True)
+    def run(self, server_packet_queue: Iterable[DataPacket]) -> Iterable[DataPacket]:
         for m_pkt in server_packet_queue:
             if m_pkt is not None:
                 if m_pkt.topic == f"{self._topic}.global_model":
-                    m_pkt = self._deserialize(m_pkt)
-                    self._lm.model = m_pkt['body']['model']
-    
-    @FederatedNode(produce=True, consume=False)  
-    def _produce(self):
-        while True:
-            event_dp = self._event_queue.get()
-            if 'model' in event_dp['body'] and 'metadata' in event_dp['body']:
+                    print(f"Client {os.environ['SERVICE_NAME']} received a new global model.", flush=True)
+                    self._lm.model = m_pkt.body['model']
+
+            if self.send_model is not None:
+                print(f"Client {os.environ['SERVICE_NAME']} is sending a new local model.", flush=True)
                 yield DataPacket(
                     topic=f"{self._topic}.local_model",
-                    body=self._serialize(event_dp)
+                    body=self.send_model
                 )
-    
-    def _deserialize(self, model_packet: DataPacket) -> DataPacket:
-        model_packet['body']['model'] = pickle.loads(model_packet['body']['model'])
-        return model_packet
-    
-    def _serialize(self, model_packet: DataPacket) -> DataPacket:
-        model_packet['body']['model'] = pickle.dumps(model_packet['body']['model'])
-        return model_packet
-    
-    def _build(self):
-        self._producer = threading.Thread(target=self._produce, args=(self,))
-        self._consumer = threading.Thread(target=self._consume, args=(self,))
-        self._producer.start()
-        self._consumer.start()
+                self.send_model = None
+  
