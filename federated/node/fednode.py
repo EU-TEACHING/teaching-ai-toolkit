@@ -1,6 +1,6 @@
 import os
 
-from .kafka_handler import KafkaAggregationProducer, KafkaAggregationConsumer
+from .communication.kafka_handler import KafkaAggregationProducer, KafkaAggregationConsumer
 
 class FederatedNode(object):
 
