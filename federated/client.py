@@ -3,6 +3,8 @@ import threading
 from typing import Iterable
 
 from .node.fednode import FederatedNode
+from .node.communication.serialization import model_from_packet_body, model_to_packet_body
+
 from base.communication.packet import DataPacket
 
 

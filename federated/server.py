@@ -5,6 +5,8 @@ from base.communication.packet import DataPacket
 from .node.fednode import FederatedNode
 from .aggregation.aggregators import get_aggregator
 
+from .node.communication.serialization import model_to_packet_body
+
 class FederatedServer:
 
     def __init__(self) -> None:
@@ -19,10 +21,8 @@ class FederatedServer:
     def __call__(self, model_packet_queue: Iterable[DataPacket]) -> Iterable[DataPacket]:
         for m_pkt in model_packet_queue:
             if m_pkt is None:
-                aggregated = self._aggregator(None)
-            else:
                 print("Server received a local model from", m_pkt.service_name, flush=True)
-                aggregated = self._aggregator(m_pkt.body['model'], m_pkt.service_name, metadata=m_pkt.body['metadata'])
+            aggregated = self._aggregator(m_pkt)
 
             if aggregated is not None:
                 print("Server is broadcasting a new global model.", flush=True)

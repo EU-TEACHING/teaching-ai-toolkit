@@ -6,6 +6,9 @@ from tensorflow import keras
 from typing import Dict
 from .base_aggregator import FederatedAggregator
 
+from node.communication.serialization import model_from_packet_body, model_to_packet_body
+from base.communication.packet import DataPacket
+
 class FedAvgAggregator(FederatedAggregator):
 
     def __init__(self) -> None:
@@ -17,17 +20,19 @@ class FedAvgAggregator(FederatedAggregator):
 
         os.makedirs(self._storage_path, exist_ok=True)
 
-    def __call__(self, model: keras.Model, client_id: Optional[str] = None, **metadata) -> Optional[Dict]:
-        if model is None:
+    def __call__(self, model_packet: DataPacket, **kwargs) -> Optional[Dict]:
+        if model_packet is None:
             return None
         
         c_path = os.path.join(self._storage_path, f"{client_id}.{self._client_model_ext}")
-        model.save(c_path)
+        model_packet.body['model'] = model_to_packet_body(model_packet.body['model'])
+        model_packet.to_file(c_path)
         self._client_paths.add(c_path)
 
         if len(self._client_paths) >= self.n_before_avg:
-            aggregated = keras.models.model_from_json(model.to_json())
-            new_weights = [np.array(keras.models.load_model(p).get_weights()) for p in self._client_paths]
+            aggregated = keras.models.model_from_json(model_packet['model']['config'])
+            
+            new_weights = [np.array(DataPacket.from_file(p).body['model']['weights']) for p in self._client_paths]
             new_weights = sum(new_weights) / len(new_weights) # TODO: edit averaging to take into account dataset size
             aggregated.set_weights(new_weights.tolist())
             self._client_paths = set()
