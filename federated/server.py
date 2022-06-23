@@ -20,7 +20,7 @@ class FederatedServer:
     @FederatedNode(produce=True, consume=True)
     def __call__(self, model_packet_queue: Iterable[DataPacket]) -> Iterable[DataPacket]:
         for m_pkt in model_packet_queue:
-            if m_pkt is None:
+            if m_pkt is not None:
                 print("Server received a local model from", m_pkt.service_name, flush=True)
             aggregated = self._aggregator(m_pkt)
 
