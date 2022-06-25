@@ -5,7 +5,6 @@ from base.communication.packet import DataPacket
 from .node.fednode import FederatedNode
 from .aggregation.aggregators import get_aggregator
 
-from .node.communication.serialization import model_to_packet_body
 
 class FederatedServer:
 

@@ -1,13 +1,14 @@
 from typing import Dict, Optional
 from tensorflow import keras
 
+from base.communication.packet import DataPacket
 
 class FederatedAggregator:
 
     def __init__(self) -> None:
         pass
 
-    def __call__(self, model: keras.Model, client_id: str, **metadata) -> Optional[Dict]:
+    def __call__(self, model_packet: DataPacket, **kwargs) -> Optional[Dict]:
         """A function that, given a model, applies the aggregation technique
 
         Args:
