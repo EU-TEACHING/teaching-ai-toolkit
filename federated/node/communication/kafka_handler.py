@@ -1,5 +1,6 @@
 import socket, os
 import logging
+from typing import Dict, Iterator, List
 import keras
 from confluent_kafka import Consumer, Producer
 from confluent_kafka import KafkaError, KafkaException
@@ -8,36 +9,15 @@ from .serialization import model_from_packet_body, model_to_packet_body
 from base.communication.packet import DataPacket
 
 
-class KafkaAggregationHandler:
+class KafkaAggregationProducer:
 
-    def __init__(self, params):
-
-        self.receiver = None
-        self.producer = None
-
-        self.ds_test = None
-        self.receiver_running = True
-
-        self.init_communication(params['broker_addr'], params['groupid'])
-
-    def init_communication(self, broker_addr, groupid):
-
-        # Configure receiver
-        conf_receiver = {'bootstrap.servers': broker_addr,
-                         'group.id': groupid,
-                         'auto.offset.reset': 'smallest'}
-
-        # Configure producer
-        conf_producer = {'bootstrap.servers': broker_addr,
-                         'client.id': f"{socket.gethostname()}.{os.getenv('SERVICE_NAME')}"}
-
-        # Instantiate producer and receiver
-        self.producer = Producer(conf_producer)
-        self.receiver = Consumer(conf_receiver)
-
-
-class KafkaAggregationProducer(KafkaAggregationHandler):
-
+    def __init__(self, params: Dict) -> None:
+        self._config = {
+            'bootstrap.servers': params['broker_addr'],
+            'client.id': f"{socket.gethostname()}.{os.getenv('SERVICE_NAME')}"
+        }
+        self.producer = Producer(self._config)
+    
     def __call__(self, model_data: DataPacket) -> None:
         for m_pkt in model_data:
             if 'model' in m_pkt.body and isinstance(m_pkt.body['model'], keras.Model):   
@@ -47,17 +27,23 @@ class KafkaAggregationProducer(KafkaAggregationHandler):
             self.producer.flush()
 
 
-class KafkaAggregationConsumer(KafkaAggregationHandler):
+class KafkaAggregationConsumer:
 
-    def __init__(self, params, topics):
-        super(KafkaAggregationConsumer, self).__init__(params)
-        self.receiver.subscribe(topics)
-        self.params = params
+    def __init__(self, params: Dict, topics: List[str]):
+        self._config = {
+            'bootstrap.servers': params['broker_addr'],
+            'group.id': params['groupid'],
+            'auto.offset.reset': 'smallest'
+        }
+        self._timeout = params['timeout']
+        
+        self.consumer = Consumer(self._config)
+        self.consumer.subscribe(topics)
 
-    def __call__(self) -> DataPacket:
+    def __call__(self) -> Iterator[DataPacket]:
         try:
-            while self.receiver_running:
-                msg = self.receiver.poll(self.params['timeout'])
+            while True:
+                msg = self.consumer.poll(self._timeout)
                 if msg is not None and msg.error():
                     if msg.error().code() == KafkaError._PARTITION_EOF:
                         # End of partition event
@@ -72,5 +58,4 @@ class KafkaAggregationConsumer(KafkaAggregationHandler):
                     yield msg
 
         finally:
-            # Close down consumer to commit final offsets.
-            self.receiver.close()
+            self.consumer.close()
