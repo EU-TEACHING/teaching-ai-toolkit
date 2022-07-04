@@ -1,11 +1,12 @@
 import os
 
+
 class FederatedNode(object):
 
     def __init__(self, produce=True, consume=True):
-        self.mode = os.getenv('MODE')
-        if  self.mode == 'FEDERATED':
-            self._mode = os.getenv('FED_COMM_BACKEND', 'kafka')
+        self.activated = os.getenv('MODE') == 'FEDERATED'
+        if self.activated:
+            self._mode = os.getenv('FED_BACKEND', 'kafka')
             
             if self._mode == 'kafka':
                 self._params = {
@@ -36,7 +37,7 @@ class FederatedNode(object):
             if self._produce:
                 self._producer = KafkaAggregationProducer(self._params)
             if self._consume:
-                self._consumer = KafkaAggregationConsumer(self._params, self._topics)
+                self._consumer = KafkaAggregationConsumer(self._params)
 
         elif self._mode == 'fs':
             print("Building the FS handler for the FederatedNode...")
@@ -55,7 +56,10 @@ class FederatedNode(object):
         
         def service_pipeline(*args):
             obj = args[0]
-            if self.mode == 'FEDERATED':
+            if self.activated and (self._consume or self._produce):
+                if self._mode == 'kafka' and self._consume:
+                    self._consumer.subscribe(obj.get_subscribe_topics())
+
                 if self._consume and not self._produce:
                     service_fn(obj, self._consumer())
 

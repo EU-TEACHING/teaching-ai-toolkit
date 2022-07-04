@@ -16,9 +16,9 @@ class RLModule(LearningModule):
 
     def __init__(self):
         super(RLModule, self).__init__()
+        self._periodic_sender = None
+        self._aggregator = None
         self._build()
-        self._periodic_sender = periodic_send_model(self)
-        self._aggregator = Aggregator()
     
     @TEACHINGNode(produce=True, consume=True)
     def __call__(self, input_fn):
@@ -29,15 +29,17 @@ class RLModule(LearningModule):
                 self._aggregator.clean()
                 final_value = float(np.argmax(profile[0]))
                 yield DataPacket(
-                    topic='prediction.driving_profile.value', 
-                    #timestamp= msg.timestamp,                    
-                    body={'driving_profile': final_value })
+                    topic='prediction.driving_profile.value',
+                    body={'driving_profile': final_value }
+                )
 
     def _build(self):
+        super(RLModule, self)._build()
         self._model = tf.keras.models.load_model(self._model_path)
         self._model.summary()
-        super(RLModule, self)._build()
-        self._client.start()
+        self._aggregator = Aggregator()
+        if self.federated:
+            self._periodic_sender = periodic_send_model(self)
 
 
 class Aggregator():

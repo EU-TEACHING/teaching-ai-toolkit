@@ -10,7 +10,7 @@ class FederatedServer:
 
     def __init__(self) -> None:
         self._aggregation_method = os.getenv('AGGREGATION', 'fedavg')
-        self._model_topic = os.getenv('MODEL_TOPIC')
+        self._topic = f"federated.{os.getenv('MODEL_TOPIC')}"
         self._aggregator = None
         self._build()
         print("Federated server instantiated.", flush=True)
@@ -26,10 +26,13 @@ class FederatedServer:
             if aggregated is not None:
                 print("Server is broadcasting a new global model.", flush=True)
                 yield DataPacket(
-                    topic=self._model_topic,
+                    topic=f"{self._topic}.global_model",
                     body=aggregated
                 )
 
     def _build(self) -> None:
         self._aggregator = get_aggregator(self._aggregation_method)
+    
+    def get_subscribe_topics(self):
+        return [f"{self._topic}.local_model"]
         

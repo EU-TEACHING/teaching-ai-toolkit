@@ -26,7 +26,7 @@ class LearningModule(object):
         self._model.set_weights(weights)
     
     def _build(self):
-        if self._exec_mode == 'FEDERATED':
+        if self.federated:
             self._client = FederatedClient(self)
     
     @property

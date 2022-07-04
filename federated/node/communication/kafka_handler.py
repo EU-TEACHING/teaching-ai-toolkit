@@ -29,7 +29,7 @@ class KafkaAggregationProducer:
 
 class KafkaAggregationConsumer:
 
-    def __init__(self, params: Dict, topics: List[str]):
+    def __init__(self, params: Dict):
         self._config = {
             'bootstrap.servers': params['broker_addr'],
             'group.id': params['groupid'],
@@ -38,7 +38,6 @@ class KafkaAggregationConsumer:
         self._timeout = params['timeout']
         
         self.consumer = Consumer(self._config)
-        self.consumer.subscribe(topics)
 
     def __call__(self) -> Iterator[DataPacket]:
         try:
@@ -59,3 +58,6 @@ class KafkaAggregationConsumer:
 
         finally:
             self.consumer.close()
+
+    def subscribe(self, topics: List[str]) -> None:
+        self.consumer.subscribe(topics)
