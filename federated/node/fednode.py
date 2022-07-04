@@ -15,9 +15,6 @@ class FederatedNode(object):
                     'timeout': float(os.getenv('TIMEOUT', '0.5'))
                 }
 
-                it = os.getenv('FED_TOPICS')
-                self._topics = it.split(',') if ',' in it else [it]
-
             elif self._mode == 'fs':
                 self._params = {
                     'produce_dir': os.getenv('FS_PRODUCE_DIR'),

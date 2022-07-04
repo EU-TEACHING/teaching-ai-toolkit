@@ -28,6 +28,7 @@ class LearningModule(object):
     def _build(self):
         if self.federated:
             self._client = FederatedClient(self)
+            self._client.start()
     
     @property
     def phase(self):
