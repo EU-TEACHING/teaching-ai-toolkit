@@ -44,11 +44,14 @@ class FileSystemConsumer:
     def __call__(self) -> Iterable[DataPacket]:
         self.observer.start()
         while True:
-            msg = self._q.get()
-            if 'model' in msg.body:
-                msg.body['model'] = model_from_packet_body(msg.body['model'])
-            
-            yield msg
+            try:
+                msg = self._q.get(timeout=0.5)
+                if 'model' in msg.body:
+                    msg.body['model'] = model_from_packet_body(msg.body['model'])
+                
+                yield msg
+            except:
+                yield None
 
 
 class Handler(FileSystemEventHandler):
