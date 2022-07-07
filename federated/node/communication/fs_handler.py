@@ -66,6 +66,6 @@ class Handler(FileSystemEventHandler):
         print(f"New file created: {event.src_path}", flush=True)
         with open(event.src_path, mode='r') as f:
             packet_raw = f.read()
-        packet = DataPacket.from_json(packet_raw.encode('unicode_escape'))
+        packet = DataPacket.from_json(packet_raw)
         self._q.put(packet)
         os.unlink(event.src_path)
