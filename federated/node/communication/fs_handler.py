@@ -54,7 +54,7 @@ class Watcher:
         self.observer = Observer()
 
     def run(self):
-        event_handler = Handler()
+        event_handler = Handler(self._q)
         self.observer.schedule(event_handler, self._path, recursive=False)
         self.observer.start()
         try:
