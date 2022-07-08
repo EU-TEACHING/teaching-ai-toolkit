@@ -2,6 +2,7 @@ import os
 import threading
 from queue import Queue
 import time
+from requests import JSONDecodeError
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
@@ -64,8 +65,14 @@ class Handler(FileSystemEventHandler):
         if event.is_directory:
             return None
         print(f"New file created: {event.src_path}", flush=True)
-        with open(event.src_path, mode='r') as f:
-            packet_raw = f.read()
-        packet = DataPacket.from_json(packet_raw)
+        success = False
+        while not success:
+            try:
+                packet = DataPacket.from_file(event.src_path)
+                success = True
+            except JSONDecodeError:
+                print("Read failed, retrying in 0.5 seconds.", flush=True)
+                time.sleep(0.5)
+        print(f"Packet from {event.src_path} red successfully.", flush=True)
         self._q.put(packet)
         os.unlink(event.src_path)
