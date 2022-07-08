@@ -65,12 +65,14 @@ class Handler(FileSystemEventHandler):
         if event.is_directory:
             return None
         print(f"New file created: {event.src_path}", flush=True)
+        time.sleep(1)
         success = False
         while not success:
             try:
+                print("Waiting...")
                 packet = DataPacket.from_file(event.src_path)
                 success = True
-            except JSONDecodeError:
+            except:
                 print("Read failed, retrying in 0.5 seconds.", flush=True)
                 time.sleep(0.5)
         print(f"Packet from {event.src_path} red successfully.", flush=True)
