@@ -1,5 +1,4 @@
 import os
-import threading
 from queue import Queue
 import time
 from requests import JSONDecodeError
@@ -37,41 +36,75 @@ class FileSystemConsumer:
 
     def __init__(self, path: str) -> None:
         self._path = path
-        self._q = Queue()
-        os.makedirs(path, exist_ok=True)
-        self.observer = Observer()
-        self.observer.schedule(Handler(self._q), path=path, recursive=False)
 
     def __call__(self) -> Iterable[DataPacket]:
-        self.observer.start()
         while True:
             try:
-                msg = self._q.get(timeout=0.5)
-                if 'model' in msg.body:
-                    msg.body['model'] = model_from_packet_body(msg.body['model'])
-                
-                yield msg
+                new_files = os.listdir(self._path)
+                if new_files != []:
+                    for f in new_files:
+                        f_path = os.path.join(self._path, f)
+                        msg = readfile(f_path)
+                        if 'model' in msg.body:
+                            msg.body['model'] = model_from_packet_body(msg.body['model'])
+                        yield msg
+                        os.unlink(f_path)
+                else:
+                    msg = None
+                    yield msg
+                time.sleep(5)
             except:
                 yield None
 
+def readfile(f_path):
+    success = False
+    while not success:
+        try:
+            msg = DataPacket.from_file(f_path)
+            success = True
+        except:
+            time.sleep(0.5)
+    return msg
 
-class Handler(FileSystemEventHandler):
 
-    def __init__(self, packet_q: Queue) -> None:
-        super().__init__()
-        self._q = packet_q
+# class FileSystemConsumer:
 
-    def on_created(self, event):
-        if event.is_directory:
-            return None
-        print(f"New file created: {event.src_path}", flush=True)
-        success = False
-        while not success:
-            try:
-                packet = DataPacket.from_file(event.src_path)
-                success = True
-            except:
-                time.sleep(0.5)
-        print(f"Packet from {event.src_path} red successfully.", flush=True)
-        self._q.put(packet)
-        os.unlink(event.src_path)
+#     def __init__(self, path: str) -> None:
+#         self._path = path
+#         self._q = Queue()
+#         os.makedirs(path, exist_ok=True)
+#         self.observer = Observer()
+#         self.observer.schedule(Handler(self._q), path=path, recursive=False)
+
+#     def __call__(self) -> Iterable[DataPacket]:
+#         self.observer.start()
+#         while True:
+#             try:
+#                 msg = self._q.get(timeout=0.5)
+#                 if 'model' in msg.body:
+#                     msg.body['model'] = model_from_packet_body(msg.body['model'])
+                
+#                 yield msg
+#             except:
+#                 yield None
+
+# class Handler(FileSystemEventHandler):
+
+#     def __init__(self, packet_q: Queue) -> None:
+#         super().__init__()
+#         self._q = packet_q
+
+#     def on_created(self, event):
+#         if event.is_directory:
+#             return None
+#         print(f"New file created: {event.src_path}", flush=True)
+#         success = False
+#         while not success:
+#             try:
+#                 packet = DataPacket.from_file(event.src_path)
+#                 success = True
+#             except:
+#                 time.sleep(0.5)
+#         print(f"Packet from {event.src_path} red successfully.", flush=True)
+#         self._q.put(packet)
+#         os.unlink(event.src_path)
