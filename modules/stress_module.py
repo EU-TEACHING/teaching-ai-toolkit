@@ -41,7 +41,7 @@ class StressModule(LearningModule):
     def _build(self):
         super(StressModule, self)._build()
         if self._model_path is not None and os.path.exists(self._model_path):
-            self._model = tf.keras.models.load_model(self._model_path)
+            self._model = tf.keras.models.load_model(self._model_path, custom_objects={'ESN': ESN})
         else:
             inputs = tf.keras.Input(batch_shape=(1, 1, int(os.environ['INPUT_SIZE'])))
             for i in range(int(os.environ['LAYERS'])):
@@ -171,7 +171,7 @@ class ESN(keras.layers.RNN):
         }
         base_config = super().get_config()
         del base_config["cell"]
-        return {**base_config, **config}
+        return dict(list(base_config.items()) + list(config.items()))
 
     @classmethod
     def from_config(cls, config):
@@ -262,6 +262,23 @@ class ReservoirCell(keras.layers.AbstractRNNCell):
     @property
     def output_size(self):
         return self.units
+    
+    def get_config(self):
+        config = {
+            'units': self.units,
+            'input_scaling': self.input_scaling,
+            'spectral_radius': self.spectral_radius,
+            'leaky': self.leaky,
+            'connectivity_input': self.connectivity_input,
+            'connectivity_recurrent': self.connectivity_recurrent,
+            'use_bias': self.use_bias
+        }
+        base_config = super(ReservoirCell, self).get_config()
+        return dict(list(base_config.items()) + list(config.items()))
+
+    @classmethod
+    def from_config(cls, config):
+        return cls(**config)
 
 
 def sparse_eye(M):
