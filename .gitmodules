@@ -2,3 +2,7 @@
 	path = base
 	url = https://github.com/EU-TEACHING/teaching-base
 	branch = main
+
+[submodule "POPQORN"]
+	path = modules/dependability/POPQORN
+	url = https://github.com/ZhaoyangLyu/POPQORN
