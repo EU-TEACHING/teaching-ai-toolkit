@@ -8,13 +8,13 @@ import time
 from urllib.parse import urlparse
 
 # internal
-from src.models.base_model import BaseModel
-from src.dataloader.dataloader import DataLoader
-from src.utils.preprocessing_utils import create_sequences, transform_df, main_transformer, \
+from modules.cybersecurity.src.models.base_model import BaseModel
+from modules.cybersecurity.src.dataloader.dataloader import DataLoader
+from modules.cybersecurity.src.utils.preprocessing_utils import create_sequences, transform_df, main_transformer, \
     create_dataframe_of_predicted_labels
-from src.utils.eval_utils import *
-from src.utils.logging_utils import *
-from src.utils.tuning_utils import model_spaces
+from modules.cybersecurity.src.utils.eval_utils import *
+from modules.cybersecurity.src.utils.logging_utils import *
+from modules.cybersecurity.src.utils.tuning_utils import model_spaces
 
 # external
 import pandas as pd

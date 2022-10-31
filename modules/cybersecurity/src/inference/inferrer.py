@@ -8,11 +8,11 @@ import joblib
 import pandas as pd
 
 # internal
-from src.dataloader.dataloader import DataLoader
-from src.utils.eval_utils import pred_eval, anomaly_scoring, get_eval_metrics
-from src.utils.preprocessing_utils import create_sequences, create_dataframe_of_predicted_labels, transform_df
-from src.configs.config import CFG
-from src.inference.base_inferrer import BaseInferrer
+from modules.cybersecurity.src.dataloader.dataloader import DataLoader
+from modules.cybersecurity.src.utils.eval_utils import pred_eval, anomaly_scoring, get_eval_metrics
+from modules.cybersecurity.src.utils.preprocessing_utils import create_sequences, create_dataframe_of_predicted_labels, transform_df
+from modules.cybersecurity.src.configs.config import CFG
+from modules.cybersecurity.src.inference.base_inferrer import BaseInferrer
 
 # external
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -61,7 +61,10 @@ class Inferrer(BaseInferrer):
         return transformer
 
     def load_data(self):
-        columns = self.features + self.ground_truth_cols
+        if self.ground_truth_cols:
+            columns = self.features + self.ground_truth_cols
+        else:
+            columns = self.features
         dict_data_types = (dict(zip(self.features, self.data_types)) if self.data_types else None)
         self.data = DataLoader().load_data(columns, self.config.inference, dict_data_types, self.n_rows, 'inference')
 

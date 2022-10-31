@@ -2,7 +2,7 @@
 """Abstract base model"""
 
 from abc import ABC, abstractmethod
-from ..utils.config import Config
+from modules.cybersecurity.src.utils.config import Config
 
 
 class BaseModel(ABC):

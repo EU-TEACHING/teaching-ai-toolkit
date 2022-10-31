@@ -1,6 +1,6 @@
 import mlflow
 from mlflow.tracking import MlflowClient
-from mlflow_env_vars import mlflow_connect
+from modules.cybersecurity.mlflow_env_vars import mlflow_connect
 
 
 def mlflow_config(mlflow_cfg):

@@ -9,11 +9,11 @@ import logging
 # external
 import mlflow
 
-# local
-from src.configs.config import CFG
-from src.models.lstm_ae import LSTMAutoencoder
-from src.inference.inferrer import Inferrer
-from src.utils.logging_utils import mlflow_config
+# internal
+from modules.cybersecurity.src.configs.config import CFG
+from modules.cybersecurity.src.models.lstm_ae import LSTMAutoencoder
+from modules.cybersecurity.src.inference.inferrer import Inferrer
+from modules.cybersecurity.src.utils.logging_utils import mlflow_config
 
 logging.basicConfig(level=logging.WARN)
 logger = logging.getLogger(__name__)

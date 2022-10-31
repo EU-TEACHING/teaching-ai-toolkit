@@ -2,7 +2,7 @@ import numpy as np
 from scipy.spatial import distance
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 
-from src.utils.preprocessing_utils import create_dataframe_of_predicted_labels
+from modules.cybersecurity.src.utils.preprocessing_utils import create_dataframe_of_predicted_labels
 
 
 def pred_eval(y_true, y_pred):
