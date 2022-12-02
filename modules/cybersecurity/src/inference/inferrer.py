@@ -53,7 +53,7 @@ class Inferrer(BaseInferrer):
         """ Load transformer. """
 
         if not os.path.exists(transformer_path):
-            print("The dataset was not found")
+            print("The transformer was not found")
             sys.exit()
         else:
             transformer = joblib.load(transformer_path)
@@ -62,7 +62,7 @@ class Inferrer(BaseInferrer):
 
     def load_data(self):
         if self.ground_truth_cols:
-            columns = self.features + self.ground_truth_cols
+            columns = self.features + self.ground_truth_cols  #ToDo try to give 1 target from config. also check in train
         else:
             columns = self.features
         dict_data_types = (dict(zip(self.features, self.data_types)) if self.data_types else None)
