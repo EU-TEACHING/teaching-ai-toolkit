@@ -128,3 +128,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+modules/cybersecurity/local_model_storage/
+modules/cybersecurity/data/
