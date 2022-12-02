@@ -88,10 +88,10 @@ class LSTMAutoencoder(BaseModel):
 
         # If there are ground truth columns, remove and store them
         if self.ground_truth_cols is not None:
-            self.normal_y = self.normal.loc[:, self.ground_truth_cols]
+            self.normal_y = self.normal.loc[:, self.ground_truth_cols] # only keep label as ground truth col, skip attack_cat
             self.anomaly_y = self.anomaly.loc[:, self.ground_truth_cols]
-        #     self.normal_x = self.normal.loc[:, self.features]
-        #     self.anomaly_x = self.anomaly.loc[:, self.features]
+            self.normal = self.normal.loc[:, self.features]
+            self.anomaly = self.anomaly.loc[:, self.features]
 
         self._preprocess_data()
 
@@ -106,12 +106,22 @@ class LSTMAutoencoder(BaseModel):
         self.normal = transform_df(self.normal, self.transformer)
         self.anomaly = transform_df(self.anomaly, self.transformer)
 
-        # Create sequences
+        # Create sequences: normal feats transformed
         self.normal_seq = create_sequences(self.normal, self.seq_time_steps)
-        print("Normal data input shape: ", self.normal_seq.shape)
+        print("Normal data input shape (#seqs, seq len, feats): ", self.normal_seq.shape)
 
+        # Create sequences: anomaly feats transformed
         self.anomaly_seq = create_sequences(self.anomaly, self.seq_time_steps)
         print("Anomaly data input shape: ", self.anomaly_seq.shape)
+
+        # Create sequences: normal y
+        self.normal_y_seq = create_sequences(self.normal_y, self.seq_time_steps)
+        print("Normal target shape (#seqs, seq len", self.normal_y_seq.shape)
+
+        # Create sequences: anomaly y
+        self.anomaly_y_seq = create_sequences(self.anomaly_y, self.seq_time_steps)
+        print("Anomaly target shape (#seqs, seq len): ", self.anomaly_y_seq.shape)
+
         self._split_subsets()
 
     def _split_subsets(self):
@@ -119,22 +129,22 @@ class LSTMAutoencoder(BaseModel):
         a_seq_num = self.anomaly_seq.shape[0] // 2
 
         # Input X
-        self.norm_train_x_seq = self.normal_seq[:n_seq_num, :, :-1]  # train
-        self.norm_val_x_seq = self.normal_seq[n_seq_num:2 * n_seq_num, :, :-1]  # hyperopt
-        self.norm_mahal_x_seq = self.normal_seq[2 * n_seq_num:3 * n_seq_num, :, :-1]  # mu and sigma
-        self.norm_thres_x_seq = self.normal_seq[3 * n_seq_num:, :, :-1]  # threshold
+        self.norm_train_x_seq = self.normal_seq[:n_seq_num, :, :]  # train
+        self.norm_val_x_seq = self.normal_seq[n_seq_num:2 * n_seq_num, :, :]  # hyperopt
+        self.norm_mahal_x_seq = self.normal_seq[2 * n_seq_num:3 * n_seq_num, :, :]  # mu and sigma
+        self.norm_thres_x_seq = self.normal_seq[3 * n_seq_num:, :, :]  # threshold
 
-        self.anom_thres_x_seq = self.anomaly_seq[:a_seq_num, :, :-1]  # threshold
-        self.anom_val_x_seq = self.anomaly_seq[a_seq_num:, :, :-1]  # testing
+        self.anom_thres_x_seq = self.anomaly_seq[:a_seq_num, :, :]  # threshold
+        self.anom_val_x_seq = self.anomaly_seq[a_seq_num:, :, :]  # testing
 
         # Label
-        self.norm_train_y_seq = self.normal_seq[:n_seq_num, :, -1]
-        self.norm_val_y_seq = self.normal_seq[n_seq_num:2 * n_seq_num, :, -1]
-        self.norm_mahal_y_seq = self.normal_seq[2 * n_seq_num:3 * n_seq_num, :, -1]
-        self.norm_thres_y_seq = self.normal_seq[3 * n_seq_num:, :, -1]
+        self.norm_train_y_seq = self.normal_y_seq[:n_seq_num, :]
+        self.norm_val_y_seq = self.normal_y_seq[n_seq_num:2 * n_seq_num, :]   # used in eval
+        self.norm_mahal_y_seq = self.normal_y_seq[2 * n_seq_num:3 * n_seq_num, :]
+        self.norm_thres_y_seq = self.normal_y_seq[3 * n_seq_num, :]
 
-        self.anom_thres_y_seq = self.anomaly_seq[:a_seq_num, :, -1]
-        self.anom_val_y_seq = self.anomaly_seq[a_seq_num:, :, -1]
+        self.anom_thres_y_seq = self.anomaly_y_seq[:a_seq_num, :]
+        self.anom_val_y_seq = self.anomaly_y_seq[a_seq_num:, :]   # used in eval
 
     def _tuning(self, space):
         """Sets training parameters"""
@@ -345,7 +355,7 @@ class LSTMAutoencoder(BaseModel):
                                })
 
         # Training configuration file
-        mlflow.log_artifact("src/configs/config.py")
+        mlflow.log_artifact("modules/cybersecurity/src/configs/config.py")
 
         # Transformer
         mlflow.log_artifact(self.transformer_path)

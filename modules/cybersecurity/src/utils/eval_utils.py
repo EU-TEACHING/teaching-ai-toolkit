@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from scipy.spatial import distance
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 
@@ -97,6 +98,7 @@ def get_eval_metrics(model, data_x, data_y, threshold, time_steps, cov, mean):
      with the threshold and return the anomalous indices."""
     anomalous_data_indices = get_anomalies(model, data_x, threshold, time_steps, cov, mean)
     data_y_unseq = np.concatenate([data_y[:-1, 0], data_y[-1, :]])
+    data_y_unseq = pd.DataFrame(data_y_unseq.reshape(-1, 1))
     y_pred = create_dataframe_of_predicted_labels(data_y_unseq, anomalous_data_indices)
     accuracy, precision, recall, f1 = pred_eval(data_y_unseq[time_steps: -time_steps], y_pred[time_steps: -time_steps])
     return accuracy, precision, recall, f1
