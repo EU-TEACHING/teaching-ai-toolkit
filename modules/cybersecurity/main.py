@@ -63,6 +63,7 @@ def run_inference():
     infer.load_model()
     infer.load_data()
     infer.predict()
+    infer.eval()
 
 
 if __name__ == '__main__':
