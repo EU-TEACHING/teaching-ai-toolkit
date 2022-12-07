@@ -49,8 +49,8 @@ CFG = {
     "inference": {
         # "data_path": "data/unsw-nb15/short_attack_normal/attack_short.csv",
         "data_path": "modules/cybersecurity/data/verification/UNSW-NB15_1.csv",
-        "ground_truth_cols": ['label'],  # or None for new data
-        "model_path": "modules/cybersecurity/local_model_storage/20221102-180127_lstmae",
-        "transformer_path": "modules/cybersecurity/local_model_storage/20221102-180127_transformer.sav"
+        "ground_truth_cols": None,  # or None for new data
+        "model_path": "modules/cybersecurity/local_model_storage/20221206-175301_lstmae",
+        "transformer_path": "modules/cybersecurity/local_model_storage/20221206-175301_transformer.sav"
     }
 }
