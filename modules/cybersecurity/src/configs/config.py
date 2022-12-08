@@ -17,10 +17,10 @@ CFG = {
                        "Float32", "Float32", "Int64", "Int64", "Int64", "Int64", "Float32", "Float32", "Float32",
                        "Int64", "Int64", "Int64", "Int64", "Int64", "Int64", "Int64", "Int64", "Int64", "Int64",
                        "category", "Int64", "Int64", "Int64", "Int64", "category"],
-        "n_rows": 9999
+        "n_rows": None
     },
     "tune": {
-        "tuning": False,
+        "tuning": True,
         "max_evals": 50
     },
     "train": {
