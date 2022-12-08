@@ -295,7 +295,7 @@ class LSTMAutoencoder(BaseModel):
         # if self.scores == "mae_loss":
         #     self.transformer.mae_loss_threshold = compute_mae_loss_threshold(self.train_reconstruction_error)
         # Save the transformer
-        self.transformer_name = self.datestr + "_transformer.sav"
+        self.transformer_name = "transformer.sav"
         self.transformer_path = os.path.join(self.model_storage, self.transformer_name)
         joblib.dump(self.transformer, self.transformer_path)
 
@@ -319,7 +319,7 @@ class LSTMAutoencoder(BaseModel):
 
         # else:
         print('Saving the model and its artifacts ...')
-        model_name = self.datestr + "_lstmae"
+        model_name = "lstmae"
         keras.models.save_model(self.model, os.path.join(self.model_storage, model_name))
 
         return self.model_history.history['loss'], self.model_history.history['val_loss']
