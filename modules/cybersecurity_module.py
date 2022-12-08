@@ -34,11 +34,12 @@ class CybersecurityModule(LearningModule):
                 seq_df = pd.DataFrame(queue)
                 self.infer.load_data_online(seq_df)
                 pred_df = self.infer.predict()
+                pred_list = pred_df.to_dict(orient='records')
 
                 yield DataPacket(
                     topic='prediction.cybersecurity.value',
                     timestamp=msg.timestamp,
-                    body=pred_df)
+                    body=pred_list)
 
             queue.pop()
 
