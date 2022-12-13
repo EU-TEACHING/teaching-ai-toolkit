@@ -24,9 +24,14 @@ class LearningModule(object):
             
     def fit(self, x=None, y=None, **kwargs):
         if x is None:
-            x = self.buffer.samples
-        self._model.fit(x, y, **kwargs)
-    
+            if self.buffer.ready:
+                x, y = self.buffer.samples
+                self._model.fit(x, y, **kwargs)
+            else:
+                print("Buffer not ready.")
+        else:
+            self._model.fit(x, y, **kwargs)
+
     def _build(self):
         if self.federated:
             self._client = FederatedClient(self)
@@ -51,29 +56,40 @@ class TrainingBuffer(object):
         self._min_size = int(os.getenv('BUFFER_MIN_SIZE', '1000'))
         self._max_size = int(os.getenv('BUFFER_MAX_SIZE', '10000'))
         self._incremental = os.getenv('INCREMENTAL', 'false').lower() == 'true'
-        self._keys_order = os.environ['BUFFER_KEYS_ORDER'].split(',')
+        self._feature_keys = os.environ['FEATURE_KEYS'].split(',')
+        self._target_key = os.getenv('TARGET_KEY')
 
-        self._window = []
+        self._x = []
+        if self._target_key is not None:
+            self._y = []
 
     def __call__(self, msg) -> None:
-        self._window += [[msg.body[k] for k in self._keys_order]] if not isinstance(msg.body, List) else [[b[k] for k in self._keys_order] for b in msg.body]
+        self._x += [[msg.body[k] for k in self._feature_keys]] if not isinstance(msg.body, List) else [[b[k] for k in self._feature_keys] for b in msg.body]
+        if self._target_key is not None:
+            self._y += [msg.body[self._target_key]] if not isinstance(msg.body, List) else [b[self._target_key] for b in msg.body]
         if len(self) >= self._max_size:
             if self._incremental:
-                self._window = self._window[(len(self) - self._max_size):]
+                self._x = self._x[(len(self) - self._max_size):]
+                self._y = self._y[(len(self) - self._max_size):]
             else:
-                self._window = self._window[:(len(self) - self._max_size)]
+                self._x = self._x[:(len(self) - self._max_size)]
+                self._y = self._y[:(len(self) - self._max_size)]
 
     def __len__(self):
-        return len(self._window)
+        return len(self._x)
     
     def flush(self, start: int = 0, end: int = None):
         if end is None:
             end = len(self)
-        self._window = self._window[start:end]
+        self._x = self._x[start:end]
+        self._y = self._y[start:end]
     
     @property
     def samples(self):
-        return np.stack(self._window, axis=0)
+        if self._target_key is None:
+            return np.array(self._x), None
+        else:
+            return np.array(self._x), np.array(self._y)
     
     @property
     def ready(self):
