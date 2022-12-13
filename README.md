@@ -11,6 +11,7 @@ The AI-Toolkit collectes all the "nodes" that can be used for defining learning/
 At the moment the AI-Toolkit offers the following base classes:
 
 - **LearningModule**: a Python class every learning module node can inherit from. It implements the basic API of a learning module node (both for inference/eval and training).
+- **TrainingBuffer**: a Python class every learning module node can inherit to support data buffering and make training easier.
 - **ESN**: general Echo State Network (ESN) for sequential classification implemented in Tensorflow.
 
 ## Currently Available Nodes
