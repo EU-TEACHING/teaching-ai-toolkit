@@ -27,10 +27,13 @@ class CybersecurityModule(LearningModule):
 
     @TEACHINGNode(produce=True, consume=True)
     def __call__(self, input_fn):
+
         queue = []
+        count = 0
         for msg in input_fn:
+            print('count: ' + str(count))
             queue.append(msg.body)
-            if len(queue) == self._seq_time_steps:
+            if len(queue) >= self._seq_time_steps * 2 - 1:
                 seq_df = pd.DataFrame(queue)
                 self.infer.load_data_online(seq_df)
                 pred_df = self.infer.predict()
@@ -39,9 +42,11 @@ class CybersecurityModule(LearningModule):
                 yield DataPacket(
                     topic='prediction.cybersecurity.value',
                     timestamp=msg.timestamp,
-                    body=pred_list)
+                    body=pred_list[len(pred_list) - self._seq_time_steps])
+                print(pred_list[len(pred_list) - 6])
+                queue.pop(0)
+            count += 1
 
-            queue.pop()
 
     def _build(self):
         super(CybersecurityModule, self)._build()
