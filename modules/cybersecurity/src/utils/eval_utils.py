@@ -58,22 +58,23 @@ def compute_mahalanobis(reconstruction_error, mean, cov, time_steps):
         axis=1)
 
 
-def anomaly_scoring(model, data, time_steps, cov, mean):
+def anomaly_scoring(model, data_seq, time_steps, cov, mean):
     """Compute anomaly scores, find anomalies and return the anomalous data indices and the threshold."""
-    reconstruction_error = model.predict(data) - data
-    anomaly_scores = compute_mahalanobis(reconstruction_error, mean, cov, time_steps)
+    reconstruction_error = model.predict(data_seq) - data_seq  # same shape with data_seq i.e., (n_seq,timesteps,n_feat)
+    anomaly_scores = compute_mahalanobis(reconstruction_error, mean, cov, time_steps)  # shape: (n_seq,)
     return anomaly_scores
 
 
 def get_anomalies(model, data_seq, threshold, time_steps, cov, mean):
     """Create a list of the anomalous data indices."""
-    anomaly_scores = anomaly_scoring(model, data_seq, time_steps, cov, mean)
+    anomaly_scores = anomaly_scoring(model, data_seq, time_steps, cov, mean)  # shape: (n_seq,)
     # Detect all the samples which are anomalies.
-    anomalies = anomaly_scores > threshold
+    anomalies = anomaly_scores > threshold  # boolean, shape (n_seq,)
     # data i is an anomaly if samples [(i - timesteps + 1) to (i)] are anomalies
     anomalous_data_indices = []
-    for data_idx in range(time_steps - 1, len(data_seq) - time_steps + 1):
-        if np.all(anomalies[data_idx - time_steps + 1: data_idx]):
+    # for data_idx in range(time_steps - 1, len(data_seq) - time_steps + 1):
+    for data_idx in range(time_steps - 1, len(data_seq)):
+        if np.all(anomalies[data_idx - time_steps + 1: data_idx + 1]):
             anomalous_data_indices.append(data_idx)
     return anomalous_data_indices
 
