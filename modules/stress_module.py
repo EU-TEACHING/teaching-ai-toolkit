@@ -18,24 +18,39 @@ class StressModule(LearningModule):
     def __init__(self):
         super(StressModule, self).__init__()
         self._build()
+        self._calibration_steps = int(os.getenv('CALIBRATION_STEPS'))
+        self._calibrate = bool(self._calibration_steps > 0)
+        self._calibrated_count = 0
+        self._sum = np.zeros((1,1))
+        self._calibration_average = np.ones((1,1))
     
     @TEACHINGNode(produce=True, consume=True)
     def __call__(self, input_fn):
-        
         for msg in input_fn:
-            if isinstance(msg.body, List):
-                stress = []
-                for body_t in msg.body:
+            is_list = isinstance(msg.body, List)
+            body = msg.body if is_list else [msg.body]
+            stress = [] if is_list else None
+            for body_t in body:
+                if self._calibrate:
+                    self._calibrated_count += 1
+                    self._sum += np.array([[body_t['eda']]])
+                    if self._calibrated_count == self._calibration_steps:
+                        self._calibrate = False
+                        self._calibration_average = self._sum / self._calibrated_count
+                    print(f"Calibration step: {self._calibrated_count}/{self._calibration_steps}", flush=True)
+                    continue
+                else:
                     x = tf.constant([[[body_t['eda']]]])
-                    stress.append({'stress': float(tf.squeeze(self._model(x)).numpy())})
-            else:
-                x = tf.constant([[[msg.body['eda']]]])
-                stress = {'stress': float(tf.squeeze(self._model(x)).numpy())}
-
-            yield DataPacket(
-                topic='prediction.stress.value', 
-                timestamp=msg.timestamp,
-                body=stress)
+                    x = x / self._calibration_average
+                    if is_list:
+                        stress.append({'stress': float(tf.squeeze(self._model(x)).numpy())})
+                    else:
+                        stress = {'stress': float(tf.squeeze(self._model(x)).numpy())}
+            
+                yield DataPacket(
+                    topic='prediction.stress.value', 
+                    timestamp=msg.timestamp,
+                    body=stress)
 
 
     def _build(self):

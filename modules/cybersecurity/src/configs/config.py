@@ -4,8 +4,9 @@
 CFG = {
 
     "data": {
-        "path_normal": "modules/cybersecurity/data/unsw-nb15/short_attack_normal/normal_short.csv",
-        "path_anomaly": "modules/cybersecurity/data/unsw-nb15/short_attack_normal/attack_short.csv",
+        "path_normal": "data/unsw-nb15/short_attack_normal/normal_short.csv",
+        "path_anomaly": "data/unsw-nb15/short_attack_normal/attack_short.csv",
+        "verification_set": "data/verification/UNSW-NB15_1.csv",
         "ground_truth_cols": ['label'],  # a list with names of columns or None
         "features": ["dur", "proto", "service", "state", "spkts", "dpkts", "sbytes", "dbytes", "sttl", "dttl",
                     "sload", "dload", "sloss", "dloss", "sinpkt", "dinpkt", "sjit", "djit", "swin", "stcpb", "dtcpb",
@@ -17,10 +18,10 @@ CFG = {
                        "Float32", "Float32", "Int64", "Int64", "Int64", "Int64", "Float32", "Float32", "Float32",
                        "Int64", "Int64", "Int64", "Int64", "Int64", "Int64", "Int64", "Int64", "Int64", "Int64",
                        "category", "Int64", "Int64", "Int64", "Int64", "category"],
-        "n_rows": 9999
+        "n_rows": None
     },
     "tune": {
-        "tuning": False,
+        "tuning": True,
         "max_evals": 50
     },
     "train": {
@@ -36,7 +37,7 @@ CFG = {
     },
     "model": {
         "model_name": "LSTM-AE",
-        "storage": "modules/cybersecurity/local_model_storage"
+        "storage": "local_model_storage"
     },
     "anomaly_scoring": {
         "scores": "mahalanobis"  # mae_loss or mahalanobis
@@ -47,10 +48,9 @@ CFG = {
         "tags": {"train_data": "normal"},
     },
     "inference": {
-        # "data_path": "data/unsw-nb15/short_attack_normal/attack_short.csv",
-        "data_path": "modules/cybersecurity/data/verification/UNSW-NB15_1.csv",
+        "data_path": "data/verification/UNSW-NB15_1.csv",
         "ground_truth_cols": ['label'],  # or None for new data
-        "model_path": "modules/cybersecurity/local_model_storage/20221102-180127_lstmae",
-        "transformer_path": "modules/cybersecurity/local_model_storage/20221102-180127_transformer.sav"
+        "model_path": "local_model_storage/lstmae",
+        "transformer_path": "local_model_storage/transformer.sav"
     }
 }
