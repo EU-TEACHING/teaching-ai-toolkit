@@ -19,7 +19,8 @@ class DataLoader:
             anomaly = pd.read_csv(config.path_anomaly, usecols=columns, dtype=data_types, nrows=n_rows, na_values=" ", index_col=False)
             anomaly.dropna(axis=0, inplace=True)
             anomaly.reset_index(inplace=True, drop=True)
-            return normal, anomaly
+            verification_set = pd.read_csv(config.verification_set, usecols=columns, dtype=data_types, nrows=n_rows, na_values=" ", index_col=False)
+            return normal, anomaly, verification_set
 
         elif mode == 'inference':
             data = pd.read_csv(config.data_path, usecols=columns, dtype=data_types, nrows=n_rows, na_values=" ", index_col=False)
