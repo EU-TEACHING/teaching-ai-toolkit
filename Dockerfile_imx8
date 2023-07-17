@@ -1,0 +1,11 @@
+FROM lorenzoinm/teaching-base:arm64
+WORKDIR /app
+
+
+COPY /base /app/base
+COPY /modules /app/modules
+COPY /federated /app/federated
+COPY main.py /app/main.py
+
+ENTRYPOINT []
+CMD ["python3", "main.py"]

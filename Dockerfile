@@ -18,7 +18,7 @@ RUN apt-get -y install python3-confluent-kafka
 RUN apt-get -y install python3-pip
 RUN python3 -m pip install pika===1.2.0
 RUN python3 -m pip install tensorflow-aarch64 -f https://tf.kmtea.eu/whl/stable.html
-RUN python3 -m pip install watchdog
+RUN python3 -m pip install watchdog neurokit2
 
 COPY /base /app/base
 COPY /modules /app/modules

@@ -1,4 +1,4 @@
-import os, time
+import os, time, numpy
 
 os.environ["SERVICE_TYPE"] = ""
 os.environ["SERVICE_NAME"] = ""
@@ -11,18 +11,19 @@ os.environ['CONNECTIVITY'] = str(1.0)
 os.environ['N_CLASSES'] = str(1)
 
 from base.communication.packet import DataPacket
-from modules.stress_module import StressModule
+from modules.or_module import ORModule
 
 if __name__ == "__main__":
 
     # this should be run disabling the @TEACHINGNode(produce=True, consume=True)
     # decorator
 
-    stress_obj = StressModule()
+    or_obj = ORModule()
+    arr = numpy.random.rand(224,224,3)
 
     msg = DataPacket(
             topic='topic',
-            body={"eda":0}
+            body={"img": str(arr.flatten().tolist())}
         )
 
     def fake_generator():
@@ -30,7 +31,7 @@ if __name__ == "__main__":
             time.sleep(0.2)
             yield msg
 
-    for res in stress_obj(fake_generator()):
+    for res in or_obj(fake_generator()):
         if isinstance(res, DataPacket):
             print("All good here!")
             break
